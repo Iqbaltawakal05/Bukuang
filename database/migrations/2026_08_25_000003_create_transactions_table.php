@@ -19,8 +19,9 @@ return new class extends Migration
             $table->enum('type', ['income', 'expense']);
             $table->decimal('amount', 15, 2);
             $table->date('transaction_date');
-            $table->string('description', 255);
+            $table->string('description', 255)->nullable();
             $table->text('notes')->nullable();
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['user_id', 'transaction_date']);

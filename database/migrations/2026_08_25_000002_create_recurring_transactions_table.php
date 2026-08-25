@@ -22,8 +22,9 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->date('next_run_date');
             $table->timestamp('last_processed_at')->nullable();
-            $table->string('description', 255);
+            $table->string('description', 255)->nullable();
             $table->boolean('is_active')->default(true);
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['is_active', 'next_run_date']);
