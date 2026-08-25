@@ -63,6 +63,10 @@ Route::prefix('v1')->group(function () {
         Route::prefix('reports')->group(function () {
             Route::get('/summary', [ReportController::class, 'summary']);
         });
+
+        // Export Management
+        Route::get('exports/{export}/download', [\App\Http\Controllers\Api\ExportController::class, 'download']);
+        Route::apiResource('exports', \App\Http\Controllers\Api\ExportController::class)->except(['update', 'destroy']);
     });
 });
 
