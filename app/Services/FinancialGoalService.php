@@ -94,6 +94,22 @@ class FinancialGoalService
             'notes' => $data['notes'] ?? null,
         ]);
 
+        // Automatically record Expense Transaction to adjust Total Balance
+        $category = \App\Models\Category::where('name', 'Savings & Goal Deposit')->first()
+            ?? \App\Models\Category::where('type', 'expense')->first();
+
+        if ($category) {
+            \App\Models\Transaction::create([
+                'user_id' => $user->id,
+                'category_id' => $category->id,
+                'type' => 'expense',
+                'amount' => $data['amount'],
+                'transaction_date' => $data['contribution_date'],
+                'description' => 'Setor Dana Goal: ' . $financialGoal->name,
+                'notes' => $data['notes'] ?? null,
+            ]);
+        }
+
         $newCurrentAmount = (float) $financialGoal->current_amount + (float) $data['amount'];
         $updateData = ['current_amount' => $newCurrentAmount];
 

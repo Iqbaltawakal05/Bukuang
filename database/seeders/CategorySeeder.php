@@ -21,6 +21,7 @@ class CategorySeeder extends Seeder
             ['name' => 'Bills & Utilities', 'type' => 'expense', 'icon' => 'file-text', 'color' => '#FF8C00'],
             ['name' => 'Education', 'type' => 'expense', 'icon' => 'book', 'color' => '#33FFF5'],
             ['name' => 'Health & Medical', 'type' => 'expense', 'icon' => 'activity', 'color' => '#33FF57'],
+            ['name' => 'Savings & Goal Deposit', 'type' => 'expense', 'icon' => 'piggy-bank', 'color' => '#059669'],
             ['name' => 'Other Expense', 'type' => 'expense', 'icon' => 'more-horizontal', 'color' => '#808080'],
 
             // Income Categories
