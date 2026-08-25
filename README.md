@@ -6,7 +6,7 @@
 [![Build Status](https://img.shields.io/badge/Tests-62%20Passed-10B981?style=flat-square&logo=phpunit&logoColor=white)](tests)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-Bukuang Backend REST API is a scalable RESTful web service for personal financial management systems. Built with Laravel 11, Laravel Sanctum authentication, PostgreSQL precision numerical storage `DECIMAL(15, 2)`, and asynchronous background queue processing for data export and scheduled automated transactions.
+Bukuang Backend REST API is a scalable RESTful web service for personal financial management systems. Built with Laravel 11, Laravel Sanctum authentication, PostgreSQL precision numerical storage `DECIMAL(15, 2)`, ACID compliant database transactions, and asynchronous background queue processing for data export and scheduled automated transactions.
 
 ---
 
@@ -24,7 +24,7 @@ Bukuang Backend REST API is a scalable RESTful web service for personal financia
 
 ## Overview
 
-Bukuang provides a robust foundation for multi-user financial tracking, budgeting, target savings management, and reporting. The application strictly enforces data isolation per authenticated user, transaction decimal precision, and automated task processing via the Laravel Task Scheduler and Job Queues.
+Bukuang provides a robust foundation for multi-user financial tracking, budgeting, target savings management, and reporting tailored for students, boarding house residents (*anak kost*), and general users. The application strictly enforces data isolation per authenticated user, transaction decimal precision, ACID database transaction atomicity, and automated task processing via the Laravel Task Scheduler and Job Queues.
 
 ---
 
@@ -33,27 +33,29 @@ Bukuang provides a robust foundation for multi-user financial tracking, budgetin
 1. **Authentication & Profile Management (`/api/v1/auth`, `/api/v1/profile`)**
    - Secure registration, Sanctum Bearer token authentication, logout, profile updates, and password revision.
 
-2. **Category Management (`/api/v1/categories`)**
-   - Income and Expense categorization supporting default system categories and user-defined custom categories.
+2. **Default System & Custom Categories (`/api/v1/categories`)**
+   - Pre-seeded with 27 default system categories tailored for students/kost (e.g., *Sewa Kost & Listrik*, *Makan & Minum Kost*, *Kuliah & Buku*, *Laundry*, *Uang Saku Orang Tua*, *Beasiswa*).
+   - Support for user-defined custom categories with custom HEX colors and icons.
 
 3. **Transaction Management (`/api/v1/transactions`)**
    - Full CRUD operations for income and expense transactions.
    - Comprehensive filtering by date range, transaction type, category, text search, sorting, and pagination.
 
 4. **Budget Management (`/api/v1/budgets`)**
-   - Monthly category budget allocations with dynamic calculations for spent amount, remaining balance, and threshold alerts (`NORMAL`, `WARNING`, `EXCEEDED`).
+   - Monthly category budget allocations with dynamic calculations for spent amount, remaining balance, and threshold alerts (`SAFE` <80%, `WARNING` 80-99%, `EXCEEDED` >=100%).
    - Database constraint enforcing single active budget per category per month.
 
-5. **Financial Goals & Contributions (`/api/v1/financial-goals`)**
+5. **Financial Goals & Setor Dana (`/api/v1/financial-goals`)**
    - Target savings planning with progress percentage tracking.
-   - Dedicated contribution endpoint (`POST /api/v1/financial-goals/{id}/contributions`) that accumulates deposits and automatically updates status to `completed` upon reaching target amount.
+   - Dedicated contribution endpoint (`POST /api/v1/financial-goals/{id}/contributions`) wrapped in **ACID `DB::transaction()`**.
+   - Automatically records an Expense Transaction under *"Savings & Goal Deposit"* to instantly adjust Total Balance and transitions status to `completed` upon reaching target amount.
 
-6. **Recurring Transactions & Scheduler (`/api/v1/recurring-transactions`)**
-   - Scheduled automated transactions supporting daily, weekly, monthly, and yearly frequencies.
-   - Artisan console command (`transactions:process-recurring`) for background processing.
+6. **Recurring Transactions & Custom Frequencies (`/api/v1/recurring-transactions`)**
+   - Scheduled automated transactions supporting **Harian (`daily`)**, **Mingguan (`weekly`)**, **Bulanan (`monthly`)**, **Triwulan (`every_3_months`)**, **Semesteran / 6 Bulan Sekali (`every_6_months`)**, and **Tahunan (`yearly`)**.
+   - Artisan console command (`transactions:process-recurring`) for background execution.
 
 7. **Dashboard Analytics & Charts (`/api/v1/dashboard`)**
-   - Summary metrics: total balance, monthly income/expense/savings, budget usage, and recent transactions.
+   - Summary metrics: total balance, monthly income/expense/savings, budget usage summary, and recent transactions.
    - Visualization data endpoints: 6-month income vs. expense trend lines and category expense distribution.
 
 8. **Reports Analytics (`/api/v1/reports`)**
@@ -149,7 +151,7 @@ All protected endpoints require a `Authorization: Bearer <token>` header.
 | `PUT \| DELETE`| `/api/v1/transactions/{id}` | Update or delete transaction |
 | `GET \| POST` | `/api/v1/budgets` | List monthly budgets / Allocate category budget |
 | `GET \| POST` | `/api/v1/financial-goals` | List / Create financial goal |
-| `POST` | `/api/v1/financial-goals/{id}/contributions` | Record contribution towards financial goal |
+| `POST` | `/api/v1/financial-goals/{id}/contributions` | Record contribution towards financial goal (ACID wrapped) |
 | `GET \| POST` | `/api/v1/recurring-transactions` | List / Create recurring transaction schedule |
 | `GET` | `/api/v1/dashboard/summary` | Fetch dashboard summary metrics |
 | `GET` | `/api/v1/dashboard/charts` | Fetch 6-month trend and category pie chart data |
