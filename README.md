@@ -1,58 +1,139 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Bukuang — Personal Finance Management System (Backend API)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-62%20Passed-10B981?style=for-the-badge&logo=phpunit&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-## About Laravel
+Bukuang Backend REST API adalah layanan API RESTful untuk Sistem Manajemen Keuangan Pribadi (*Personal Finance Management System*). Dibangun menggunakan **Laravel 11**, otentikasi **Laravel Sanctum**, **PostgreSQL** dengan tipe angka desimal presisi tinggi `DECIMAL(15, 2)`, serta pemrosesan antrean latar belakang (*Background Job Queue*) untuk pemrosesan ekspor laporan dan transaksi berulang.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🌟 Fitur Utama API
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+1. **Authentication & Profile Management (`/api/v1/auth`, `/api/v1/profile`)**
+   - Registrasi user, Login (Sanctum Bearer Token), Logout, Update Profil, & Ubah Password.
+2. **Category Management (`/api/v1/categories`)**
+   - Pengelolaan kategori Pemasukan (*Income*) & Pengeluaran (*Expense*).
+   - Kategori Default Sistem vs Kategori Kustom per User.
+3. **Transaction Management (`/api/v1/transactions`)**
+   - CRUD Pemasukan & Pengeluaran.
+   - Filter Rentang Tanggal, Filter Tipe, Filter Kategori, Search Text, Sorting, & Pagination.
+4. **Budget Management (`/api/v1/budgets`)**
+   - Pengaturan batas anggaran bulanan per kategori.
+   - Kalkulasi otomatis pengeluaran (`spent`), sisa (`remaining`), persentase penggunaan, & status peringatan (`NORMAL`, `WARNING`, `EXCEEDED`).
+   - Mencegah duplikasi alokasi anggaran pada bulan & tahun yang sama.
+5. **Financial Goals & Setoran Dana (`/api/v1/financial-goals`)**
+   - Pengelolaan target tabungan (`target_amount`, `current_amount`, `target_date`, `status`).
+   - Endpoint **Setor Dana (`POST /api/v1/financial-goals/{id}/contributions`)** yang menghitung akumulasi setoran dan otomatis meng-update status ke `completed` saat target tercapai.
+6. **Recurring Transactions & Scheduler (`/api/v1/recurring-transactions`)**
+   - Jadwal transaksi berulang (harian, mingguan, bulanan, tahunan).
+   - Artisan Command (`php artisan transactions:process-recurring`) untuk pemrosesan otomatis.
+7. **Dashboard Analytics & Charts (`/api/v1/dashboard`)**
+   - **Summary Metrik**: Total Balance, Pemasukan/Pengeluaran Bulanan, Tabungan, Ringkasan Budget, & 5 Transaksi Terbaru.
+   - **Charts**: Grafik Tren 6 Bulan (Income vs Expense) & Grafik Lingkaran Distribusi Pengeluaran per Kategori.
+8. **Reports Analytics (`/api/v1/reports`)**
+   - Laporan ringkasan per periode (`daily`, `weekly`, `monthly`, `yearly`, `custom`) dengan breakdown kategori & persentase.
+9. **Export Feature & Queue (`/api/v1/exports`)**
+   - Request ekspor laporan latar belakang (*Asynchronous Background Job Queue*) untuk format **PDF**, **CSV**, dan **XLSX**.
+   - Endpoint cek status pengerjaan job & **Download File Hasil Ekspor**.
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠️ Requirements & Prasyarat Sistem
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+* **PHP**: `>= 8.3`
+* **Composer**: `>= 2.0`
+* **Database**: PostgreSQL / SQLite / MySQL
+* **PHP Extensions**: `pdo`, `pdo_pgsql` / `pdo_mysql`, `mbstring`, `openssl`, `json`
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+---
 
-## Agentic Development
+## ⚙️ Cara Instalasi & Setup Lokal
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+1. **Clone Repositori**:
+   ```bash
+   git clone https://github.com/Iqbaltawakal05/bukuang.git
+   cd bukuang
+   ```
+
+2. **Install Dependensi Composer**:
+   ```bash
+   composer install
+   ```
+
+3. **Konfigurasi Environment**:
+   Duplikat berkas `.env.example` menjadi `.env`:
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+   Atur konfigurasi database pada `.env`:
+   ```env
+   DB_CONNECTION=pgsql
+   DB_HOST=127.0.0.1
+   DB_PORT=5432
+   DB_DATABASE=bukuang
+   DB_USERNAME=postgres
+   DB_PASSWORD=yourpassword
+   ```
+
+4. **Jalankan Database Migration & Seeder**:
+   ```bash
+   php artisan migrate --seed
+   ```
+
+5. **Jalankan Server Development**:
+   ```bash
+   php artisan serve
+   ```
+   Layanan API akan berjalan di `http://127.0.0.1:8000`.
+
+---
+
+## 🧪 Jalankan Testing Suites
+
+Seluruh endpoint dan logika bisnis didukung oleh pengujian otomatis (*Feature Tests*):
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan test
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+**Hasil Pengujian**:
+- **62 Test Suite Passed** (100% Pass Rate)
+- **231 Assertions**
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## 📑 Spesifikasi Endpoint API (Akses Singkat)
 
-## Code of Conduct
+Semua endpoint terlindung oleh Bearer Token kecuali `auth/register` dan `auth/login`.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+| Method | Endpoint | Deskripsi |
+|---|---|---|
+| `POST` | `/api/v1/auth/register` | Register pengguna baru |
+| `POST` | `/api/v1/auth/login` | Login & Generate Token Sanctum |
+| `POST` | `/api/v1/auth/logout` | Revoke Token Active |
+| `GET` | `/api/v1/profile` | Ambil Data Profil User |
+| `PUT` | `/api/v1/profile` | Update Informasi Profil |
+| `PUT` | `/api/v1/profile/password` | Update Password |
+| `GET\|POST` | `/api/v1/categories` | List & Tambah Kategori |
+| `PUT\|DELETE`| `/api/v1/categories/{id}` | Edit & Soft Delete Kategori Custom |
+| `GET\|POST` | `/api/v1/transactions` | List (Filter/Search/Sort) & Tambah Transaksi |
+| `PUT\|DELETE`| `/api/v1/transactions/{id}` | Edit & Hapus Transaksi |
+| `GET\|POST` | `/api/v1/budgets` | List Budget Bulanan & Set Budget Kategori |
+| `GET\|POST` | `/api/v1/financial-goals` | List & Buat Target Tabungan |
+| `POST` | `/api/v1/financial-goals/{id}/contributions` | Tambah Setoran Dana ke Target Tabungan |
+| `GET\|POST` | `/api/v1/recurring-transactions` | List & Tambah Jadwal Transaksi Berulang |
+| `GET` | `/api/v1/dashboard/summary` | Metrik Summary Dashboard |
+| `GET` | `/api/v1/dashboard/charts` | Data Grafik Tren 6 Bulan & Pie Chart Kategori |
+| `GET` | `/api/v1/reports/summary` | Laporan Keuangan Periode (Daily/Weekly/Monthly/Yearly/Custom) |
+| `POST` | `/api/v1/exports` | Request Job Ekspor Laporan (PDF, CSV, XLSX) |
+| `GET` | `/api/v1/exports/{id}/download` | Unduh File Hasil Ekspor Laporan |
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## 📜 Lisensi
+Repositori ini dirilis di bawah lisensi [MIT License](LICENSE).
