@@ -48,6 +48,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('budgets', BudgetController::class);
 
         // Financial Goals Management
+        Route::post('financial-goals/{financial_goal}/contributions', [FinancialGoalController::class, 'storeContribution']);
         Route::apiResource('financial-goals', FinancialGoalController::class);
     });
 });

@@ -24,6 +24,7 @@ class FinancialGoalResource extends JsonResource
             'target_date' => $this->target_date?->format('Y-m-d'),
             'description' => $this->description,
             'status' => $this->status,
+            'contributions' => GoalContributionResource::collection($this->whenLoaded('contributions')),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

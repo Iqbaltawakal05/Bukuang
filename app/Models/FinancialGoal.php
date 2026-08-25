@@ -31,4 +31,9 @@ class FinancialGoal extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function contributions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(GoalContribution::class);
+    }
 }
