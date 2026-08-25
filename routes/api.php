@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\RecurringTransactionController;
+use App\Http\Controllers\Api\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,7 +35,14 @@ Route::prefix('v1')->group(function () {
 
         // Category Management
         Route::apiResource('categories', CategoryController::class);
+
+        // Transaction Management
+        Route::apiResource('transactions', TransactionController::class);
+
+        // Recurring Transaction Management
+        Route::apiResource('recurring-transactions', RecurringTransactionController::class);
     });
 });
+
 
 
