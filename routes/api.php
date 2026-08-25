@@ -3,8 +3,10 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BudgetController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FinancialGoalController;
 use App\Http\Controllers\Api\RecurringTransactionController;
+use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\TransactionController;
 use Illuminate\Support\Facades\Route;
 
@@ -50,6 +52,17 @@ Route::prefix('v1')->group(function () {
         // Financial Goals Management
         Route::post('financial-goals/{financial_goal}/contributions', [FinancialGoalController::class, 'storeContribution']);
         Route::apiResource('financial-goals', FinancialGoalController::class);
+
+        // Dashboard Analytics
+        Route::prefix('dashboard')->group(function () {
+            Route::get('/summary', [DashboardController::class, 'summary']);
+            Route::get('/charts', [DashboardController::class, 'charts']);
+        });
+
+        // Reports Analytics
+        Route::prefix('reports')->group(function () {
+            Route::get('/summary', [ReportController::class, 'summary']);
+        });
     });
 });
 
