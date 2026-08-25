@@ -1,139 +1,164 @@
-# Bukuang — Personal Finance Management System (Backend API)
+# Bukuang — Personal Finance Management System (Backend REST API)
 
-![Laravel](https://img.shields.io/badge/Laravel-11-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
-![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=for-the-badge&logo=php&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Tests](https://img.shields.io/badge/Tests-62%20Passed-10B981?style=for-the-badge&logo=phpunit&logoColor=white)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+[![Laravel 11](https://img.shields.io/badge/Laravel-11-FF2D20?style=flat-square&logo=laravel&logoColor=white)](https://laravel.com)
+[![PHP 8.3](https://img.shields.io/badge/PHP-8.3-777BB4?style=flat-square&logo=php&logoColor=white)](https://php.net)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql&logoColor=white)](https://postgresql.org)
+[![Build Status](https://img.shields.io/badge/Tests-62%20Passed-10B981?style=flat-square&logo=phpunit&logoColor=white)](tests)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-Bukuang Backend REST API adalah layanan API RESTful untuk Sistem Manajemen Keuangan Pribadi (*Personal Finance Management System*). Dibangun menggunakan **Laravel 11**, otentikasi **Laravel Sanctum**, **PostgreSQL** dengan tipe angka desimal presisi tinggi `DECIMAL(15, 2)`, serta pemrosesan antrean latar belakang (*Background Job Queue*) untuk pemrosesan ekspor laporan dan transaksi berulang.
+Bukuang Backend REST API is a scalable RESTful web service for personal financial management systems. Built with Laravel 11, Laravel Sanctum authentication, PostgreSQL precision numerical storage `DECIMAL(15, 2)`, and asynchronous background queue processing for data export and scheduled automated transactions.
 
 ---
 
-## 🌟 Fitur Utama API
+## Table of Contents
+
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [System Requirements](#system-requirements)
+- [Installation & Setup](#installation--setup)
+- [Automated Testing](#automated-testing)
+- [API Endpoints Reference](#api-endpoints-reference)
+- [License](#license)
+
+---
+
+## Overview
+
+Bukuang provides a robust foundation for multi-user financial tracking, budgeting, target savings management, and reporting. The application strictly enforces data isolation per authenticated user, transaction decimal precision, and automated task processing via the Laravel Task Scheduler and Job Queues.
+
+---
+
+## Key Features
 
 1. **Authentication & Profile Management (`/api/v1/auth`, `/api/v1/profile`)**
-   - Registrasi user, Login (Sanctum Bearer Token), Logout, Update Profil, & Ubah Password.
+   - Secure registration, Sanctum Bearer token authentication, logout, profile updates, and password revision.
+
 2. **Category Management (`/api/v1/categories`)**
-   - Pengelolaan kategori Pemasukan (*Income*) & Pengeluaran (*Expense*).
-   - Kategori Default Sistem vs Kategori Kustom per User.
+   - Income and Expense categorization supporting default system categories and user-defined custom categories.
+
 3. **Transaction Management (`/api/v1/transactions`)**
-   - CRUD Pemasukan & Pengeluaran.
-   - Filter Rentang Tanggal, Filter Tipe, Filter Kategori, Search Text, Sorting, & Pagination.
+   - Full CRUD operations for income and expense transactions.
+   - Comprehensive filtering by date range, transaction type, category, text search, sorting, and pagination.
+
 4. **Budget Management (`/api/v1/budgets`)**
-   - Pengaturan batas anggaran bulanan per kategori.
-   - Kalkulasi otomatis pengeluaran (`spent`), sisa (`remaining`), persentase penggunaan, & status peringatan (`NORMAL`, `WARNING`, `EXCEEDED`).
-   - Mencegah duplikasi alokasi anggaran pada bulan & tahun yang sama.
-5. **Financial Goals & Setoran Dana (`/api/v1/financial-goals`)**
-   - Pengelolaan target tabungan (`target_amount`, `current_amount`, `target_date`, `status`).
-   - Endpoint **Setor Dana (`POST /api/v1/financial-goals/{id}/contributions`)** yang menghitung akumulasi setoran dan otomatis meng-update status ke `completed` saat target tercapai.
+   - Monthly category budget allocations with dynamic calculations for spent amount, remaining balance, and threshold alerts (`NORMAL`, `WARNING`, `EXCEEDED`).
+   - Database constraint enforcing single active budget per category per month.
+
+5. **Financial Goals & Contributions (`/api/v1/financial-goals`)**
+   - Target savings planning with progress percentage tracking.
+   - Dedicated contribution endpoint (`POST /api/v1/financial-goals/{id}/contributions`) that accumulates deposits and automatically updates status to `completed` upon reaching target amount.
+
 6. **Recurring Transactions & Scheduler (`/api/v1/recurring-transactions`)**
-   - Jadwal transaksi berulang (harian, mingguan, bulanan, tahunan).
-   - Artisan Command (`php artisan transactions:process-recurring`) untuk pemrosesan otomatis.
+   - Scheduled automated transactions supporting daily, weekly, monthly, and yearly frequencies.
+   - Artisan console command (`transactions:process-recurring`) for background processing.
+
 7. **Dashboard Analytics & Charts (`/api/v1/dashboard`)**
-   - **Summary Metrik**: Total Balance, Pemasukan/Pengeluaran Bulanan, Tabungan, Ringkasan Budget, & 5 Transaksi Terbaru.
-   - **Charts**: Grafik Tren 6 Bulan (Income vs Expense) & Grafik Lingkaran Distribusi Pengeluaran per Kategori.
+   - Summary metrics: total balance, monthly income/expense/savings, budget usage, and recent transactions.
+   - Visualization data endpoints: 6-month income vs. expense trend lines and category expense distribution.
+
 8. **Reports Analytics (`/api/v1/reports`)**
-   - Laporan ringkasan per periode (`daily`, `weekly`, `monthly`, `yearly`, `custom`) dengan breakdown kategori & persentase.
-9. **Export Feature & Queue (`/api/v1/exports`)**
-   - Request ekspor laporan latar belakang (*Asynchronous Background Job Queue*) untuk format **PDF**, **CSV**, dan **XLSX**.
-   - Endpoint cek status pengerjaan job & **Download File Hasil Ekspor**.
+   - Comprehensive reporting engine for daily, weekly, monthly, yearly, and custom date ranges with category percentage breakdowns.
+
+9. **Export Engine & Background Queue (`/api/v1/exports`)**
+   - Asynchronous report generation queue supporting PDF, CSV, and XLSX formats.
+   - Job status monitoring and file download streaming.
 
 ---
 
-## 🛠️ Requirements & Prasyarat Sistem
+## System Requirements
 
-* **PHP**: `>= 8.3`
-* **Composer**: `>= 2.0`
-* **Database**: PostgreSQL / SQLite / MySQL
-* **PHP Extensions**: `pdo`, `pdo_pgsql` / `pdo_mysql`, `mbstring`, `openssl`, `json`
+- **PHP**: `>= 8.3`
+- **Composer**: `>= 2.0`
+- **Database Engine**: PostgreSQL 16 (or MySQL / SQLite for development)
+- **Required PHP Extensions**: `pdo`, `pdo_pgsql`, `mbstring`, `openssl`, `json`
 
 ---
 
-## ⚙️ Cara Instalasi & Setup Lokal
+## Installation & Setup
 
-1. **Clone Repositori**:
+1. **Clone Repository**
    ```bash
    git clone https://github.com/Iqbaltawakal05/bukuang.git
    cd bukuang
    ```
 
-2. **Install Dependensi Composer**:
+2. **Install Dependencies**
    ```bash
    composer install
    ```
 
-3. **Konfigurasi Environment**:
-   Duplikat berkas `.env.example` menjadi `.env`:
+3. **Configure Environment**
    ```bash
    cp .env.example .env
    php artisan key:generate
    ```
-
-   Atur konfigurasi database pada `.env`:
+   Update `.env` with your database configuration:
    ```env
    DB_CONNECTION=pgsql
    DB_HOST=127.0.0.1
    DB_PORT=5432
    DB_DATABASE=bukuang
    DB_USERNAME=postgres
-   DB_PASSWORD=yourpassword
+   DB_PASSWORD=your_password
    ```
 
-4. **Jalankan Database Migration & Seeder**:
+4. **Execute Migrations & Seeders**
    ```bash
    php artisan migrate --seed
    ```
 
-5. **Jalankan Server Development**:
+5. **Start Application Server**
    ```bash
    php artisan serve
    ```
-   Layanan API akan berjalan di `http://127.0.0.1:8000`.
+   The API server will run at `http://127.0.0.1:8000`.
 
 ---
 
-## 🧪 Jalankan Testing Suites
+## Automated Testing
 
-Seluruh endpoint dan logika bisnis didukung oleh pengujian otomatis (*Feature Tests*):
+The codebase includes feature and integration test suites covering all API routes, authorization policies, calculation routines, and queue execution.
+
+Run the test suite via Artisan:
 
 ```bash
 php artisan test
 ```
 
-**Hasil Pengujian**:
-- **62 Test Suite Passed** (100% Pass Rate)
+**Test Execution Results**:
+- **62 Test Cases**: 100% Passed
 - **231 Assertions**
 
 ---
 
-## 📑 Spesifikasi Endpoint API (Akses Singkat)
+## API Endpoints Reference
 
-Semua endpoint terlindung oleh Bearer Token kecuali `auth/register` dan `auth/login`.
+All protected endpoints require a `Authorization: Bearer <token>` header.
 
-| Method | Endpoint | Deskripsi |
+| HTTP Method | Route | Description |
 |---|---|---|
-| `POST` | `/api/v1/auth/register` | Register pengguna baru |
-| `POST` | `/api/v1/auth/login` | Login & Generate Token Sanctum |
-| `POST` | `/api/v1/auth/logout` | Revoke Token Active |
-| `GET` | `/api/v1/profile` | Ambil Data Profil User |
-| `PUT` | `/api/v1/profile` | Update Informasi Profil |
-| `PUT` | `/api/v1/profile/password` | Update Password |
-| `GET\|POST` | `/api/v1/categories` | List & Tambah Kategori |
-| `PUT\|DELETE`| `/api/v1/categories/{id}` | Edit & Soft Delete Kategori Custom |
-| `GET\|POST` | `/api/v1/transactions` | List (Filter/Search/Sort) & Tambah Transaksi |
-| `PUT\|DELETE`| `/api/v1/transactions/{id}` | Edit & Hapus Transaksi |
-| `GET\|POST` | `/api/v1/budgets` | List Budget Bulanan & Set Budget Kategori |
-| `GET\|POST` | `/api/v1/financial-goals` | List & Buat Target Tabungan |
-| `POST` | `/api/v1/financial-goals/{id}/contributions` | Tambah Setoran Dana ke Target Tabungan |
-| `GET\|POST` | `/api/v1/recurring-transactions` | List & Tambah Jadwal Transaksi Berulang |
-| `GET` | `/api/v1/dashboard/summary` | Metrik Summary Dashboard |
-| `GET` | `/api/v1/dashboard/charts` | Data Grafik Tren 6 Bulan & Pie Chart Kategori |
-| `GET` | `/api/v1/reports/summary` | Laporan Keuangan Periode (Daily/Weekly/Monthly/Yearly/Custom) |
-| `POST` | `/api/v1/exports` | Request Job Ekspor Laporan (PDF, CSV, XLSX) |
-| `GET` | `/api/v1/exports/{id}/download` | Unduh File Hasil Ekspor Laporan |
+| `POST` | `/api/v1/auth/register` | Register new user account |
+| `POST` | `/api/v1/auth/login` | Authenticate user and issue Sanctum token |
+| `POST` | `/api/v1/auth/logout` | Revoke active Bearer token |
+| `GET` | `/api/v1/profile` | Retrieve active user profile |
+| `PUT` | `/api/v1/profile` | Update user profile information |
+| `PUT` | `/api/v1/profile/password` | Update account password |
+| `GET \| POST` | `/api/v1/categories` | List categories / Create custom category |
+| `PUT \| DELETE`| `/api/v1/categories/{id}` | Update or soft-delete custom category |
+| `GET \| POST` | `/api/v1/transactions` | List (with search/filter/sort) / Create transaction |
+| `PUT \| DELETE`| `/api/v1/transactions/{id}` | Update or delete transaction |
+| `GET \| POST` | `/api/v1/budgets` | List monthly budgets / Allocate category budget |
+| `GET \| POST` | `/api/v1/financial-goals` | List / Create financial goal |
+| `POST` | `/api/v1/financial-goals/{id}/contributions` | Record contribution towards financial goal |
+| `GET \| POST` | `/api/v1/recurring-transactions` | List / Create recurring transaction schedule |
+| `GET` | `/api/v1/dashboard/summary` | Fetch dashboard summary metrics |
+| `GET` | `/api/v1/dashboard/charts` | Fetch 6-month trend and category pie chart data |
+| `GET` | `/api/v1/reports/summary` | Fetch period report summary |
+| `POST` | `/api/v1/exports` | Request background export job (PDF, CSV, XLSX) |
+| `GET` | `/api/v1/exports/{id}/download` | Download generated export file |
 
 ---
 
-## 📜 Lisensi
-Repositori ini dirilis di bawah lisensi [MIT License](LICENSE).
+## License
+
+This software is open-sourced software licensed under the [MIT License](LICENSE).
