@@ -43,8 +43,23 @@ class FinancialGoalController extends Controller
         $this->authorize('view', $financialGoal);
 
         return response()->json([
-            'data' => new FinancialGoalResource($financialGoal),
+            'data' => new FinancialGoalResource($financialGoal->load('contributions')),
         ], Response::HTTP_OK);
+    }
+
+    public function storeContribution(\App\Http\Requests\FinancialGoal\StoreGoalContributionRequest $request, FinancialGoal $financialGoal): JsonResponse
+    {
+        $this->authorize('update', $financialGoal);
+
+        $contribution = $this->financialGoalService->addContribution($financialGoal, $request->user(), $request->validated());
+
+        return response()->json([
+            'message' => 'Setoran target keuangan berhasil ditambahkan.',
+            'data' => [
+                'contribution' => new \App\Http\Resources\GoalContributionResource($contribution),
+                'financial_goal' => new FinancialGoalResource($financialGoal->fresh('contributions')),
+            ],
+        ], Response::HTTP_CREATED);
     }
 
     public function update(UpdateFinancialGoalRequest $request, FinancialGoal $financialGoal): JsonResponse

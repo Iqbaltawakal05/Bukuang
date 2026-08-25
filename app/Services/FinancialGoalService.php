@@ -80,4 +80,29 @@ class FinancialGoalService
             'percentage' => $percentage,
         ];
     }
+
+    /**
+     * Add a contribution/setoran to a financial goal.
+     */
+    public function addContribution(FinancialGoal $financialGoal, User $user, array $data): \App\Models\GoalContribution
+    {
+        $contribution = \App\Models\GoalContribution::create([
+            'financial_goal_id' => $financialGoal->id,
+            'user_id' => $user->id,
+            'amount' => $data['amount'],
+            'contribution_date' => $data['contribution_date'],
+            'notes' => $data['notes'] ?? null,
+        ]);
+
+        $newCurrentAmount = (float) $financialGoal->current_amount + (float) $data['amount'];
+        $updateData = ['current_amount' => $newCurrentAmount];
+
+        if ($newCurrentAmount >= (float) $financialGoal->target_amount && $financialGoal->status === 'active') {
+            $updateData['status'] = 'completed';
+        }
+
+        $financialGoal->update($updateData);
+
+        return $contribution;
+    }
 }
