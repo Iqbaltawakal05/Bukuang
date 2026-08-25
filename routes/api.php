@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\BudgetController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\RecurringTransactionController;
 use App\Http\Controllers\Api\TransactionController;
@@ -41,6 +42,9 @@ Route::prefix('v1')->group(function () {
 
         // Recurring Transaction Management
         Route::apiResource('recurring-transactions', RecurringTransactionController::class);
+
+        // Budget Management
+        Route::apiResource('budgets', BudgetController::class);
     });
 });
 

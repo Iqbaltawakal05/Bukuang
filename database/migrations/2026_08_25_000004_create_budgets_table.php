@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('month');
             $table->unsignedSmallInteger('year');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->unique(['user_id', 'category_id', 'month', 'year']);
             $table->index(['user_id', 'month', 'year']);
