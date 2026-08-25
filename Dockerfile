@@ -19,3 +19,4 @@ EXPOSE 8000
 
 # Run migrations and start Laravel server
 CMD ["sh", "-c", "php artisan migrate --force --seed && php artisan serve --host=0.0.0.0 --port=${PORT:-8000}"]
+

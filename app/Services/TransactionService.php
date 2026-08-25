@@ -18,23 +18,23 @@ class TransactionService
         $query = Transaction::with('category')
             ->where('user_id', $user->id);
 
-        if (! empty($filters['type'])) {
+        if (!empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
-        if (! empty($filters['category_id'])) {
+        if (!empty($filters['category_id'])) {
             $query->where('category_id', $filters['category_id']);
         }
 
-        if (! empty($filters['start_date'])) {
+        if (!empty($filters['start_date'])) {
             $query->whereDate('transaction_date', '>=', $filters['start_date']);
         }
 
-        if (! empty($filters['end_date'])) {
+        if (!empty($filters['end_date'])) {
             $query->whereDate('transaction_date', '<=', $filters['end_date']);
         }
 
-        if (! empty($filters['search'])) {
+        if (!empty($filters['search'])) {
             $search = $filters['search'];
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', "%{$search}%")
@@ -73,8 +73,6 @@ class TransactionService
             'daily' => $baseDate->addDay()->format('Y-m-d'),
             'weekly' => $baseDate->addWeek()->format('Y-m-d'),
             'monthly' => $baseDate->addMonth()->format('Y-m-d'),
-            'every_3_months' => $baseDate->addMonths(3)->format('Y-m-d'),
-            'every_6_months' => $baseDate->addMonths(6)->format('Y-m-d'),
             'yearly' => $baseDate->addYear()->format('Y-m-d'),
             default => $baseDate->format('Y-m-d'),
         };
