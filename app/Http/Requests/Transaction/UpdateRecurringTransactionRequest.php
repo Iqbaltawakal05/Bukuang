@@ -26,7 +26,7 @@ class UpdateRecurringTransactionRequest extends FormRequest
             ],
             'type' => ['required', 'string', Rule::in(['income', 'expense'])],
             'amount' => ['required', 'numeric', 'gt:0', 'max:999999999999.99'],
-            'frequency' => ['required', 'string', Rule::in(['daily', 'weekly', 'monthly', 'yearly'])],
+            'frequency' => ['required', 'string', Rule::in(['daily', 'weekly', 'monthly', 'every_3_months', 'every_6_months', 'yearly'])],
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'description' => ['nullable', 'string', 'max:255'],

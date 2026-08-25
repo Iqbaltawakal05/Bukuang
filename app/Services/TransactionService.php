@@ -73,6 +73,8 @@ class TransactionService
             'daily' => $baseDate->addDay()->format('Y-m-d'),
             'weekly' => $baseDate->addWeek()->format('Y-m-d'),
             'monthly' => $baseDate->addMonth()->format('Y-m-d'),
+            'every_3_months' => $baseDate->addMonths(3)->format('Y-m-d'),
+            'every_6_months' => $baseDate->addMonths(6)->format('Y-m-d'),
             'yearly' => $baseDate->addYear()->format('Y-m-d'),
             default => $baseDate->format('Y-m-d'),
         };
