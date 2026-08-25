@@ -2,9 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Category;
 use App\Models\FinancialGoal;
+use App\Models\GoalContribution;
+use App\Models\Transaction;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 
 class FinancialGoalService
 {
@@ -82,43 +86,45 @@ class FinancialGoalService
     }
 
     /**
-     * Add a contribution/setoran to a financial goal.
+     * Add a contribution/setoran to a financial goal with ACID DB Transaction safety.
      */
-    public function addContribution(FinancialGoal $financialGoal, User $user, array $data): \App\Models\GoalContribution
+    public function addContribution(FinancialGoal $financialGoal, User $user, array $data): GoalContribution
     {
-        $contribution = \App\Models\GoalContribution::create([
-            'financial_goal_id' => $financialGoal->id,
-            'user_id' => $user->id,
-            'amount' => $data['amount'],
-            'contribution_date' => $data['contribution_date'],
-            'notes' => $data['notes'] ?? null,
-        ]);
-
-        // Automatically record Expense Transaction to adjust Total Balance
-        $category = \App\Models\Category::where('name', 'Savings & Goal Deposit')->first()
-            ?? \App\Models\Category::where('type', 'expense')->first();
-
-        if ($category) {
-            \App\Models\Transaction::create([
+        return DB::transaction(function () use ($financialGoal, $user, $data) {
+            $contribution = GoalContribution::create([
+                'financial_goal_id' => $financialGoal->id,
                 'user_id' => $user->id,
-                'category_id' => $category->id,
-                'type' => 'expense',
                 'amount' => $data['amount'],
-                'transaction_date' => $data['contribution_date'],
-                'description' => 'Setor Dana Goal: ' . $financialGoal->name,
+                'contribution_date' => $data['contribution_date'],
                 'notes' => $data['notes'] ?? null,
             ]);
-        }
 
-        $newCurrentAmount = (float) $financialGoal->current_amount + (float) $data['amount'];
-        $updateData = ['current_amount' => $newCurrentAmount];
+            // Flexible category lookup for Goal setoran
+            $category = Category::whereIn('name', ['Savings & Goal Deposit', 'Tabungan & Setor Goal'])
+                ->first() ?? Category::where('type', 'expense')->first();
 
-        if ($newCurrentAmount >= (float) $financialGoal->target_amount && $financialGoal->status === 'active') {
-            $updateData['status'] = 'completed';
-        }
+            if ($category) {
+                Transaction::create([
+                    'user_id' => $user->id,
+                    'category_id' => $category->id,
+                    'type' => 'expense',
+                    'amount' => $data['amount'],
+                    'transaction_date' => $data['contribution_date'],
+                    'description' => 'Setor Dana Goal: ' . $financialGoal->name,
+                    'notes' => $data['notes'] ?? null,
+                ]);
+            }
 
-        $financialGoal->update($updateData);
+            $newCurrentAmount = (float) $financialGoal->current_amount + (float) $data['amount'];
+            $updateData = ['current_amount' => $newCurrentAmount];
 
-        return $contribution;
+            if ($newCurrentAmount >= (float) $financialGoal->target_amount && $financialGoal->status === 'active') {
+                $updateData['status'] = 'completed';
+            }
+
+            $financialGoal->update($updateData);
+
+            return $contribution;
+        });
     }
 }
