@@ -21,6 +21,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->enum('status', ['active', 'completed', 'cancelled'])->default('active');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['user_id', 'status']);
         });

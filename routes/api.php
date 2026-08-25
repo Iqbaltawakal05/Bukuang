@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BudgetController;
 use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\FinancialGoalController;
 use App\Http\Controllers\Api\RecurringTransactionController;
 use App\Http\Controllers\Api\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,9 @@ Route::prefix('v1')->group(function () {
 
         // Budget Management
         Route::apiResource('budgets', BudgetController::class);
+
+        // Financial Goals Management
+        Route::apiResource('financial-goals', FinancialGoalController::class);
     });
 });
 
