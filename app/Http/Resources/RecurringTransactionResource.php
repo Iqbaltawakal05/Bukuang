@@ -12,6 +12,7 @@ class RecurringTransactionResource extends JsonResource
         return [
             'id' => $this->id,
             'user_id' => $this->user_id,
+            'category_id' => $this->category_id,
             'type' => $this->type,
             'amount' => (float) $this->amount,
             'frequency' => $this->frequency,
